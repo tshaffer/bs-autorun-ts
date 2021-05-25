@@ -139,6 +139,90 @@ export const bsUiModelReducer: BsUiReducer;
 export const isValidBsUiModelState: (state: any) => boolean;
 export const isValidBsUiModelStateShallow: (state: any) => boolean;
 
+export const ADD_DATA_FEED = "ADD_DATA_FEED";
+export function addDataFeed(dataFeedId: string, arDataFeed: ArDataFeed): {
+    type: string;
+    payload: {
+        dataFeedId: string;
+        arDataFeed: ArDataFeed;
+    };
+};
+export const dataFeedReducer: (state: ArDataFeedMap | undefined, action: any) => ArDataFeedMap;
+/** @private */
+export const isValidDataFeedState: (state: any) => boolean;
+
+/** @module Model:template */
+export const ADD_HSM: string;
+export const UPDATE_HSM_PROPERTIES: string;
+export const SET_HSM_TOP: string;
+export const SET_HSM_INITIALIZED: string;
+export const ADD_HSTATE = "ADD_HSTATE";
+export const SET_MEDIA_H_STATE_TIMEOUT_ID = "SET_MEDIA_H_STATE_TIMEOUT_ID";
+export const SET_MEDIA_H_STATE_PARAMETER_DATA = "SET_MEDIA_H_STATE_PARAMETER_DATA";
+export const SET_ACTIVE_HSTATE = "SET_ACTIVE_HSTATE";
+export const QUEUE_HSM_EVENT = "QUEUE_HSM_EVENT";
+export const DEQUEUE_HSM_EVENT = "DEQUEUE_HSM_EVENT";
+export type AddHsmAction = BsPpAction<Partial<Hsm>>;
+export function addHsm(hsm: Hsm): AddHsmAction;
+export interface HsmParams {
+    id: string;
+    zoneId?: string;
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
+    initialMediaStateId?: string;
+    mediaStateIdToHState?: LUT;
+}
+export type UpdateHsmPropertiesAction = BsPpAction<HsmParams>;
+export function updateHsmProperties(params: HsmParams): UpdateHsmPropertiesAction;
+export type SetHsmTopAction = BsPpAction<{}>;
+export function setHsmTop(hsmId: string, topStateId: string): SetHsmTopAction;
+export type SetHsmInitializedAction = BsPpAction<Partial<Hsm>>;
+export function setHsmInitialized(id: string, initialized: boolean): SetHsmInitializedAction;
+export type SetActiveHStateAction = BsPpAction<HState | null | any>;
+export function setActiveHState(hsmId: string, activeState: HState | null): SetActiveHStateAction;
+export type AddHStateAction = BsPpAction<{
+    id: string;
+    type: HStateType;
+    hsmId: string;
+    superStateId: string;
+    name: string;
+    data?: MediaHStateData | null;
+}>;
+export function addHState(id: string, hStateSpecification: HStateSpecification, data?: MediaHStateData | null): AddHStateAction;
+export function setMediaHStateTimeoutId(hStateId: string, timeoutId: number): any;
+export function setMediaHStateParameter(hStateId: string, parameterName: string, parameterValue: any): any;
+export type HsmEventAction = BsPpAction<HsmEventType>;
+export function queueHsmEvent(event: HsmEventType): HsmEventAction;
+export function dequeueHsmEvent(): BsPpBaseAction;
+export const hsmReducer: import("redux").Reducer<import("redux").CombinedState<HsmState>, import("redux").AnyAction>;
+/** @private */
+export const isValidHsmState: (state: any) => boolean;
+
+export const SET_VIDEO_ELEMENT_REF = "SET_VIDEO_ELEMENT_REF";
+export type SetPlaybackAction = BsPpAction<PlaybackState>;
+export const setVideoElementRef: (videoElementRef: HTMLVideoElement | null) => SetPlaybackAction;
+export const playbackDefaults: PlaybackState;
+export const playbackReducer: (state: PlaybackState | undefined, { type, payload }: (SetPlaybackAction)) => PlaybackState;
+
+export const UPDATE_PRESENTATION_DATA = "UPDATE_PRESENTATION_DATA";
+export const UPDATE_RUNTIME_ENVIRONMENT = "UPDATE_RUNTIME_ENVIRONMENT";
+export const UPDATE_PRESENTATION_SRC_DIRECTORY = "UPDATE_PRESENTATION_SRC_DIRECTORY";
+export const UPDATE_SYNC_SPEC_FILE_MAP = "UPDATE_SYNC_SPEC_FILE_MAP";
+export const UPDATE_AUTOSCHEDULE = "UPDATE_AUTOSCHEDULE";
+export const UPDATE_SCREEN_DIMENSIONS = "UPDATE_SCREEN_DIMENSIONS";
+export type UpdatePresentationDataAction = BsPpAction<Partial<PresentationDataState>>;
+export type UpdatePresentationStringAction = BsPpAction<Partial<PresentationDataState>>;
+export function updatePresentationData(presentationDataState: PresentationDataState): UpdatePresentationDataAction;
+export const updateRuntimeEnvironment: (runtimeEnvironment: RuntimeEnvironment) => UpdatePresentationDataAction;
+export const updatePresentationSrcDirectory: (srcDirectory: string) => UpdatePresentationDataAction;
+export const updatePresentationSyncSpecFileMap: (syncSpecFileMap: SyncSpecFileMap) => UpdatePresentationDataAction;
+export const updatePresentationAutoschedule: (autoSchedule: PpSchedule) => UpdatePresentationDataAction;
+export const updateScreenDimensions: (screenDimensions: Dimensions) => UpdatePresentationDataAction;
+export const presentationDataDefaults: PresentationDataState;
+export const presentationDataReducer: (state: PresentationDataState | undefined, { type, payload }: (UpdatePresentationDataAction)) => PresentationDataState;
+
 /** @module Model:template */
 /** @private */
 export const templateReducer: (state: BsUiModelTemplateState, action: BsUiModelBatchAction) => BsUiModelTemplateState;

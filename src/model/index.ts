@@ -2,5 +2,9 @@
 
 export * from './baseAction';
 export * from './baseReducer';
+export * from './dataFeed';
+export * from './hsm';
+export * from './playback';
+export * from './presentation';
 export * from './template';
 export * from './templateProperty';
