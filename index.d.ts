@@ -2,10 +2,20 @@
 // Dependencies for this module:
 //   ../../react
 //   ../../redux
+//   ../../@brightsign/bsdatamodel
+//   ../../@brightsign/ba-context-model
+//   ../../@brightsign/assetpool
+//   ../../@brightsign/bscore
 
 import * as React from 'react';
 import { Action, Dispatch, ActionCreator } from 'redux';
 import { Reducer } from 'redux';
+import { DmState } from '@brightsign/bsdatamodel';
+import { BaContextModelState } from '@brightsign/ba-context-model';
+import { Asset } from '@brightsign/assetpool';
+import { BsDmId } from '@brightsign/bsdatamodel';
+import { DataFeedUsageType } from '@brightsign/bscore';
+import { BsAssetLocator } from '@brightsign/bscore';
 
 /** @module Controller:index */
 
@@ -88,6 +98,40 @@ export const bsUiModelRehydrateModel: (bsUiModelState: BsUiModelState) => Rehydr
 /** @private */
 export type ResetBsUiModelAction = BsUiModelAction<null>;
 export const bsUiModelResetModel: () => ResetBsUiModelAction;
+/** @private */
+export interface BsPpModelBaseAction extends Action {
+    type: string;
+    payload: {} | null;
+    error?: boolean;
+    meta?: {};
+}
+/** @private */
+export interface BsPpModelAction<T> extends BsPpModelBaseAction {
+    payload: T;
+}
+/** @private */
+export type BsPpModelActionCreator<T> = ActionCreator<BsPpModelAction<T>>;
+export type BsPpModelThunkAction<T> = (dispatch: BsPpDispatch, getState: () => BsPpModelState, extraArgument: undefined) => T;
+export interface BsPpBaseAction extends Action {
+    type: string;
+    payload: {} | null;
+    error?: boolean;
+    meta?: {};
+}
+export interface BsPpAction<T> extends BsPpBaseAction {
+    payload: T;
+}
+export type BsPpDispatch = Dispatch<BsPpState>;
+export type BsPpVoidThunkAction = any;
+export type BsPpStringThunkAction = any;
+export type BsPpVoidPromiseThunkAction = any;
+export type BsPpThunkAction<T> = any;
+export type BsPpAnyPromiseThunkAction = any;
+export type BsPpActionCreator<T> = ActionCreator<BsPpAction<T>>;
+export interface BsPpModelBatchAction extends Action {
+    type: string;
+    payload: BsPpBaseAction[];
+}
 
 /** @module Model:base */
 export type BsUiReducer = Reducer<BsUiModelState>;
@@ -145,15 +189,44 @@ export const bsUiModelGetTemplatePropertyColorState: (state: BsUiModelState) => 
 
 /** @module Types:base */
 /** @private */
-export type DeepPartial<T> = {
-    [P in keyof T]?: DeepPartial<T[P]>;
-};
-/** @private */
 export interface BsUiModelState {
     template: BsUiModelTemplateState;
 }
 /** @private */
 export const createModel: (template: BsUiModelTemplateState) => BsUiModelState;
+/** @module Types:base */
+export class RuntimeEnvironment {
+    static BrightSign: string;
+    static BaconPreview: string;
+    static Dev: string;
+}
+export type DeepPartial<T> = {
+    [P in keyof T]?: DeepPartial<T[P]>;
+};
+export interface BsPpState {
+    type: any;
+    bsdm: DmState;
+    bacdm: BaContextModelState;
+    bsPlayer: BsPpModelState;
+}
+export interface BsPpModelState {
+    hsmState: HsmState;
+    presentationData: PresentationDataState;
+    playback: PlaybackState;
+    arDataFeeds: ArDataFeedMap;
+}
+export interface LUT {
+    [key: string]: any;
+}
+export interface BsPpBaseObject {
+    id: string;
+}
+export interface BsPpMap<T extends BsPpBaseObject> {
+    [id: string]: T;
+}
+export interface FileLUT {
+    [fileName: string]: string;
+}
 
 /** @module Types:template */
 /** @private */
@@ -179,6 +252,224 @@ export const createTemplateProperty: (color: BsUiModelTemplatePropertyColorState
 /** @private */
 export const createBsColor: (r: number, g: number, b: number, a: number) => BsUiModelTemplatePropertyColorState;
 
+export type HsmMap = BsPpMap<Hsm>;
+export type HStateMap = BsPpMap<HState>;
+export interface HsmState {
+    hsmById: HsmMap;
+    hStateById: HStateMap;
+    hsmEventQueue: HsmEventType[];
+}
+export interface Hsm {
+    id: string;
+    name: string;
+    type: HsmType;
+    topStateId: string;
+    activeStateId: string | null;
+    initialized: boolean;
+    properties: HsmProperties;
+}
+export type HsmProperties = ZoneHsmProperties | MediaZoneHsmProperties | {};
+export interface ZoneHsmProperties {
+    zoneId: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    initialMediaStateId: string;
+}
+export interface MediaZoneHsmProperties extends ZoneHsmProperties {
+    mediaStateIdToHState: LUT;
+}
+export interface HsmEventType {
+    EventType: string;
+    data?: any;
+    EventData?: any;
+}
+
+export class HsmType {
+    static Player: string;
+    static VideoOrImages: string;
+}
+export class HsmTimerType {
+    static MediaHState: string;
+    static MrssState: string;
+}
+
+export class HStateType {
+    static Top: string;
+    static Player: string;
+    static Playing: string;
+    static Waiting: string;
+    static Image: string;
+    static Mrss: string;
+    static Video: string;
+    static SuperState: string;
+}
+export interface HState {
+    id: string;
+    type: HStateType;
+    hsmId: string;
+    superStateId: string;
+    name: string;
+}
+export interface MediaHState extends HState {
+    data: MediaHStateData;
+}
+export interface MediaHStateData {
+    mediaStateId: string;
+    mediaStateData?: MediaHStateParamsData | null;
+}
+export type MediaHStateParamsData = MediaHStateCustomData;
+export type MediaHStateCustomData = ImageStateData | VideoStateData | SuperStateData | MrssStateData;
+export interface ImageStateData {
+    timeoutId?: number;
+}
+export interface VideoStateData {
+    timeoutId?: number;
+}
+export interface SuperStateData {
+    timeoutId?: number;
+}
+export interface MrssStateData {
+    timeoutId?: number;
+    dataFeedId: string;
+    currentFeedId: string | null;
+    pendingFeedId: string | null;
+    displayIndex: number;
+    firstItemDisplayed: boolean;
+    waitForContentTimer: any;
+}
+export interface HStateSpecification {
+    type: HStateType;
+    hsmId: string;
+    superStateId: string;
+    name: string;
+}
+export interface HSMStateData {
+    nextStateId: string | null;
+}
+
+export interface ArFeed {
+    rss: any;
+}
+export interface ArDataFeedBase {
+    type: string;
+    id: BsDmId;
+    sourceId: BsDmId;
+    usage: DataFeedUsageType;
+}
+export interface ArTextItem {
+    articleTitle: string;
+    articleDescription: string;
+}
+export interface ArTextFeedProperties {
+    textItems: ArTextItem[];
+    articlesByTitle: any;
+}
+export interface ArMrssItem {
+    guid: string;
+    link: string;
+    title: string;
+    pubDate: string;
+    duration: string;
+    fileSize: string;
+    medium: string;
+    type: string;
+    url: string;
+    filePath?: string;
+}
+export interface ArMrssFeedProperties {
+    mrssItems: ArMrssItem[];
+    title: string;
+    playtime: string;
+    ttl: string;
+    assetList: Asset[];
+}
+export interface ArContentFeedItem {
+    name: string;
+    url: string;
+    medium: string;
+    hash: string;
+}
+export interface ArContentFeedProperties {
+    contentItems: ArContentFeedItem[];
+    assetList: Asset[];
+}
+export interface ArMediaFeedItem {
+    filePath: string;
+    medium: string;
+}
+export type ArDataFeed = ArTextFeed | ArMrssFeed | ArContentFeed;
+export type ArTextFeed = ArDataFeedBase & ArTextFeedProperties;
+export type ArMrssFeed = ArDataFeedBase & ArMrssFeedProperties;
+export type ArContentFeed = ArDataFeedBase & ArContentFeedProperties;
+export interface ArDataFeedMap {
+    [dataFeedId: string]: ArDataFeed;
+}
+
+export interface PlaybackState {
+    videoElementRef: HTMLVideoElement | null;
+}
+
+export interface PresentationDataState {
+    runtimeEnvironment: RuntimeEnvironment;
+    screenDimensions: Dimensions;
+    srcDirectory: string;
+    syncSpecFileMap: SyncSpecFileMap | null;
+    autoSchedule: PpSchedule | null;
+}
+export interface SyncSpecFileMap {
+    [name: string]: SyncSpecDownload;
+}
+export interface SyncSpecDownload {
+    name: string;
+    hash: SyncSpecHash;
+    size: number;
+    link: string;
+}
+interface SyncSpecHash {
+    method: string;
+    hex: string;
+}
+interface SyncSpecMeta {
+    client: any;
+    server: any;
+}
+export interface RawSyncSpecFiles {
+    download: SyncSpecDownload[];
+    ignore: any;
+    delete: any;
+}
+export interface RawSyncSpec {
+    meta: SyncSpecMeta;
+    files: RawSyncSpecFiles;
+}
+export {};
+
+export interface PpSchedule {
+    scheduledPresentations: ScheduledPresentation[];
+}
+export interface ScheduledPresentation {
+    presentationToSchedule: ScheduledPresentationFileData;
+    presentationLocator: BsAssetLocator;
+    dateTime: string;
+    duration: number;
+    allDayEveryDay: boolean;
+    recurrence: boolean;
+    recurrencePattern: string;
+    recurrencePatternDaily: string;
+    recurrencePatternDaysOfWeek: number;
+    recurrenceStartDate: string;
+    recurrenceGoesForever: boolean;
+    recurrenceEndDate: string;
+    interruption: boolean;
+}
+export interface ScheduledPresentationFileData {
+    name: string;
+    fileName: string;
+    filePath: string;
+}
+
 export enum BsUiErrorType {
     unknownError = 0,
     unexpectedError = 1,
@@ -193,4 +484,11 @@ export class BsUiError extends Error {
     constructor(type: BsUiErrorType, reason?: string);
 }
 export function isBsUiError(error: Error): error is BsUiError;
+
+export const newBsPpId: () => string;
+export interface Dimensions {
+    width: number;
+    height: number;
+}
+export const calculateAspectRatioFit: (srcWidth: number, srcHeight: number, maxWidth: number, maxHeight: number) => Dimensions;
 
