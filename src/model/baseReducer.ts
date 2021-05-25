@@ -4,17 +4,31 @@
 //   Reducer,
 //   combineReducers
 // } from 'redux';
-// import { isNil } from 'lodash';
+import { isNil } from 'lodash';
 // import { BsUiModelState } from '../type';
 // import {
 //   BSUIMODEL_BATCH,
 //   BsUiModelBaseAction,
 //   BsUiModelBatchAction,
 // } from './baseAction';
-// import {
-//   templateReducer,
-//   isValidTemplateState,
-// } from './template';
+import {
+  // templateReducer,
+  isValidTemplateState,
+} from './template';
+
+import {
+  Reducer,
+  combineReducers
+} from 'redux';
+import { BsPpModelState } from '../type';
+import {
+  BsPpModelBaseAction,
+} from './baseAction';
+import { hsmReducer } from './hsm';
+import { presentationDataReducer } from './presentation';
+import { playbackReducer } from './playback';
+import { dataFeedReducer, isValidDataFeedState } from './dataFeed';
+
 
 // // -----------------------------------------------------------------------
 // // Defaults
@@ -51,31 +65,17 @@
 // // Validators
 // // -----------------------------------------------------------------------
 
-// export const isValidBsUiModelState = (state: any): boolean => {
-//   return !isNil(state)
-//     && state.hasOwnProperty('template') && isValidTemplateState(state.template);
-// };
+export const isValidBsUiModelState = (state: any): boolean => {
+  return !isNil(state)
+    && state.hasOwnProperty('template') && isValidTemplateState(state.template);
+};
 
-// export const isValidBsUiModelStateShallow = (state: any): boolean => {
-//   return !isNil(state)
-//     && state.hasOwnProperty('template');
-// };
+export const isValidBsUiModelStateShallow = (state: any): boolean => {
+  return !isNil(state)
+    && state.hasOwnProperty('template');
+};
 
 /** @module Model:base */
-
-import {
-  Reducer,
-  combineReducers
-} from 'redux';
-import { isNil } from 'lodash';
-import { BsPpModelState } from '../type';
-import {
-  BsPpModelBaseAction,
-} from './baseAction';
-import { hsmReducer } from './hsm';
-import { presentationDataReducer } from './presentation';
-import { playbackReducer } from './playback';
-import { dataFeedReducer, isValidDataFeedState } from './dataFeed';
 
 // -----------------------------------------------------------------------
 // Defaults

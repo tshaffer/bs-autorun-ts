@@ -2,17 +2,18 @@
 // Dependencies for this module:
 //   ../../react
 //   ../../redux
+//   ../../@brightsign/assetpool
 //   ../../@brightsign/bsdatamodel
 //   ../../@brightsign/ba-context-model
-//   ../../@brightsign/assetpool
 //   ../../@brightsign/bscore
 
 import * as React from 'react';
 import { Action, Dispatch, ActionCreator } from 'redux';
 import { Reducer } from 'redux';
+import { Asset } from '@brightsign/assetpool';
+import AssetPool from '@brightsign/assetpool';
 import { DmState } from '@brightsign/bsdatamodel';
 import { BaContextModelState } from '@brightsign/ba-context-model';
-import { Asset } from '@brightsign/assetpool';
 import { BsDmId } from '@brightsign/bsdatamodel';
 import { DataFeedUsageType } from '@brightsign/bscore';
 import { BsAssetLocator } from '@brightsign/bscore';
@@ -133,11 +134,17 @@ export interface BsPpModelBatchAction extends Action {
     payload: BsPpBaseAction[];
 }
 
-/** @module Model:base */
-export type BsUiReducer = Reducer<BsUiModelState>;
-export const bsUiModelReducer: BsUiReducer;
 export const isValidBsUiModelState: (state: any) => boolean;
 export const isValidBsUiModelStateShallow: (state: any) => boolean;
+/** @private */
+export type BsUiReducer = Reducer<BsPpModelState>;
+/** @private */
+export const enableBatching: (reduce: (state: BsPpModelState, action: BsPpModelBaseAction) => BsPpModelState) => BsUiReducer;
+export const bsPpReducer: Reducer<BsPpModelState, import("redux").AnyAction>;
+/** @private */
+export function isValidBsPpModelState(state: any): boolean;
+/** @private */
+export function isValidBsPpModelStateShallow(state: any): boolean;
 
 export const ADD_DATA_FEED = "ADD_DATA_FEED";
 export function addDataFeed(dataFeedId: string, arDataFeed: ArDataFeed): {
@@ -271,6 +278,46 @@ export const bsUiModelGetTemplatePropertyState: (state: BsUiModelState) => BsUiM
 /** @private */
 export const bsUiModelGetTemplatePropertyColorState: (state: BsUiModelState) => BsUiModelTemplatePropertyColorState;
 
+export function getDataFeedById(state: any, dataFeedId: string): ArDataFeed | null;
+export function getMrssFeedItems(feed: any): ArMrssItem[];
+export function allDataFeedContentExists(state: any, dataFeed: ArMrssFeed | ArContentFeed): boolean;
+export function dataFeedContentExists(state: any, dataFeed: ArMrssFeed): boolean;
+export function getFeedPoolFilePathFromAsset(state: any, asset: Asset): string;
+
+export function getHsmMap(state: any): HsmMap;
+export function getHsmById(state: any, hsmId: string): Hsm;
+export function getHsmByName(state: BsPpState, hsmName: string): Hsm | null;
+export const getActiveHStateIdByHsmId: (state: BsPpState, hsmId: string) => HState | null;
+export function getHStateById(state: any, hStateId: string | null): HState | null;
+export function getHStateByName(state: any, name: string | null): HState | null;
+export function getHStateByMediaStateId(state: any, hsmId: string, mediaStateId: string | null): HState | null;
+export function getHsmInitialized(state: any, hsmId: string): boolean;
+export function getZoneHsmList(state: any): Hsm[];
+export function getZoneHsmFromZoneId(state: any, zoneId: string): Hsm | null;
+export function getActiveMediaStateId(state: any, zoneId: string): string;
+export function getActiveMrssDisplayIndex(state: any, zoneId: string): number;
+export function getEvents(state: any): HsmEventType[];
+export const getIsHsmInitialized: (state: any) => boolean;
+
+export function getMrssItemFilePath(state: any, mediaStateId: string): string;
+
+export function getVideoRef(state: BsPpState): HTMLVideoElement | null;
+
+export function getRuntimeEnvironment(state: any): RuntimeEnvironment;
+export function getSrcDirectory(state: any): string;
+export function getScreenDimensions(state: any): Dimensions;
+export const getSyncSpecFileMap: (state: BsPpState) => SyncSpecFileMap | null;
+export const getAutoschedule: (state: any) => PpSchedule | null;
+export function getPathFromAssetName(state: BsPpState, assetName: string): string;
+export function getAssetPath(state: BsPpState, assetName: string): string;
+export const getSyncSpecFile: (state: BsPpState, fileName: string) => Promise<object>;
+export function getSyncSpecReferencedFile(fileName: string, syncSpecFileMap: SyncSpecFileMap, rootPath: string): Promise<object>;
+export function getFeedPoolDirectory(state: any): string;
+export function getFeedPoolFilePath(state: any, hashValue: string): string;
+export function feedPoolFileExists(state: any, hashValue: string): string;
+export function getFeedCacheRoot(state: any): string;
+export function getFeedAssetPool(state: any): AssetPool;
+
 /** @module Types:base */
 /** @private */
 export interface BsUiModelState {
@@ -299,6 +346,7 @@ export interface BsPpModelState {
     playback: PlaybackState;
     arDataFeeds: ArDataFeedMap;
 }
+export const bsPpStateFromState: (state: any) => BsPpState;
 export interface LUT {
     [key: string]: any;
 }

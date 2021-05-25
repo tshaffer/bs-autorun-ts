@@ -56,27 +56,28 @@ export interface BsPpModelState {
   arDataFeeds: ArDataFeedMap;
 }
 
-// export const bsPpStateFromState = (state: any): BsPpState => {
-//   if (state.hasOwnProperty('bspp')) {
-//     const bsPpModelState: BsPpModelState = (state as any).bspp;
-//     const bsPpState: BsPpState = {
-//       bsdm: state.bsdm,
-//       bacdm: state.bacdm,
-//       bsPlayer: {
-//         playback: bsPpModelState.playback,
-//         presentationData: bsPpModelState.presentationData,
-//         hsmState: bsPpModelState.hsmState,
-//         arDataFeeds: bsPpModelState.arDataFeeds,
-//       }
-//     };
-//     return bsPpState;
-//   } else if (state.hasOwnProperty('bsPlayer')) {
-//     return state;
-//   } else {
-//     debugger;
-//     return state;
-//   }
-// };
+export const bsPpStateFromState = (state: any): BsPpState => {
+  if (state.hasOwnProperty('bspp')) {
+    const bsPpModelState: BsPpModelState = (state as any).bspp;
+    const bsPpState: BsPpState = {
+      type: '',
+      bsdm: state.bsdm,
+      bacdm: state.bacdm,
+      bsPlayer: {
+        playback: bsPpModelState.playback,
+        presentationData: bsPpModelState.presentationData,
+        hsmState: bsPpModelState.hsmState,
+        arDataFeeds: bsPpModelState.arDataFeeds,
+      }
+    };
+    return bsPpState;
+  } else if (state.hasOwnProperty('bsPlayer')) {
+    return state;
+  } else {
+    debugger;
+    return state;
+  }
+};
 
 export interface LUT { [key: string]: any; }
 
